@@ -31,6 +31,7 @@ public class Main extends MovieClip {
     private var fixedExpandTimeId:uint = 0;
     private var DelayTimeoutID:uint = 0;
     private var fixed:Boolean = false;
+    private var logoX:Number = 0;
 
 
     public function Frame2():void {
@@ -114,6 +115,7 @@ public class Main extends MovieClip {
     //エキスパンドじゃない状態の初期化
     private function Init():void {
         this.closebtn.visible = false; //closebtn消し
+        logoX = logo.x;
     }
 
     private function DelayTask():void {
@@ -134,7 +136,9 @@ public class Main extends MovieClip {
         (fixedExpandTimeId != 0) ? clearTimeout(fixedExpandTimeId) : 0;
         if (pressclose) pressclose = false;
         if (fixed) fixed = false;
+        dotgen.close();
         this.closebtn.visible = false; //ボタンも消す　巻き戻しはエキスパンドの時にやっている
+        logo.x = logoX
         ExternalInterface.call("ClipRectSpecify", from);
     }
 
@@ -145,7 +149,9 @@ public class Main extends MovieClip {
      */
     private function Expandswf():void {
         if (fixed) return;
+        dotgen.open();
         this.closebtn.visible = true; //closebtnの表示
+        logo.x = 14.4;
         fixedExpandTimeId = setTimeout(fixedExpand, fixedExpandTime);
         // clicktagアクションend
         ExternalInterface.addCallback("Clipswf", Clipswf);
