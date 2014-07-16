@@ -4,6 +4,11 @@
     <configurations>
       <configuration name="YoruPane" pure-as="true" main-class="YoruPane" output-file="YoruPane.swf" output-folder="$MODULE_DIR$/fla">
         <dependencies target-player="10.2">
+          <entries>
+            <entry library-name="greensock" library-level="project">
+              <dependency linkage="Merged" />
+            </entry>
+          </entries>
           <sdk name="4.5.0.20967" />
         </dependencies>
         <compiler-options>
@@ -15,6 +20,11 @@
       </configuration>
       <configuration name="YoruPaneTest" pure-as="true" main-class="YoruPaneTest" output-file="YoruPaneTest.swf" output-folder="$MODULE_DIR$/out/production/YoruPane">
         <dependencies target-player="11.9">
+          <entries>
+            <entry library-name="greensock" library-level="project">
+              <dependency linkage="Merged" />
+            </entry>
+          </entries>
           <sdk name="4.6.0.23201B" />
         </dependencies>
         <compiler-options>
@@ -35,6 +45,7 @@
     </content>
     <orderEntry type="jdk" jdkName="4.5.0.20967&#9;4.6.0.23201B" jdkType="__CompositeFlexSdk__" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="greensock" level="project" />
   </component>
 </module>
 
