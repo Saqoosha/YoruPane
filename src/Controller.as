@@ -35,6 +35,7 @@ public class Controller extends Sprite {
     public var dlad:Sprite;
 
     private var _animator:Animator;
+    private var _bgcolor:uint;
 
 
     public function Controller() {
@@ -69,7 +70,7 @@ public class Controller extends Sprite {
 //                    '}');
 //        }
 
-        var img:BitmapData = new BitmapData(950, 600, false, 0xffffff);
+        var img:BitmapData = new BitmapData(950, 600, false, _bgcolor);
         img.draw(_animator);
         var png:ByteArray = PNGEncoder.encode(img);
         new FileReference().save(png, 'dot.png');
@@ -98,7 +99,7 @@ public class Controller extends Sprite {
 
 
     private function _handleAddedToStage(event:Event):void {
-        graphics.beginFill(0xffffff);
+        graphics.beginFill(_bgcolor = Math.random() * 0xffffff);
         graphics.drawRect(0, 0, stage.stageWidth, stage.stageHeight);
         graphics.endFill();
     }
@@ -120,15 +121,15 @@ public class Controller extends Sprite {
         var info:Vector.<DotInfo> = Generator.generate(origin, area, radius, color, interval, rotation, shear);
         var delay:Number = _animator.transition(info);
 
-        var bgcolor:uint = Math.random() * 0xffffff;
+        _bgcolor = Math.random() * 0xffffff;
         graphics.clear();
-        graphics.beginFill(bgcolor);
+        graphics.beginFill(_bgcolor);
         graphics.drawRect(0, 0, 950, 600);
         graphics.endFill();
 
         if (ExternalInterface.available) {
             color = colorTint(color, 0xffffff, 0.5);
-            bgcolor = colorTint(bgcolor, 0xffffff, 0.5);
+            _bgcolor = colorTint(_bgcolor, 0xffffff, 0.5);
             setTimeout(function():void {
                 ExternalInterface.call('function(params){' +
                         'window.dotgen.draw(params);' +
@@ -136,7 +137,7 @@ public class Controller extends Sprite {
                     origin: {x: origin.x, y: origin.y},
                     radius: radius,
                     color: '#' + ('00000' + color.toString(16)).substr(-6),
-                    bgcolor: '#' + ('00000' + bgcolor.toString(16)).substr(-6),
+                    bgcolor: '#' + ('00000' + _bgcolor.toString(16)).substr(-6),
                     interval: interval,
                     rotation: rotation,
                     shear: shear
