@@ -18,18 +18,23 @@ public class Animator extends Sprite {
     private var _dots:Dictionary = new Dictionary();
 
 
-    public function transition(next:Vector.<DotInfo>):void {
+    public function transition(next:Vector.<DotInfo>):Number {
         var t:int = getTimer();
 
         var info:DotInfo;
         var nearest:DotInfo;
         var dot:Dot;
         var delay:Number;
+        var maxDelay:Number = 0;
 
         function calcDelay(info:DotInfo):Number {
             var dx:Number = info.x - 475;
             var dy:Number = info.y - 300;
-            return Math.sqrt(dx * dx + dy * dy) / 2000;
+            var d:Number = Math.sqrt(dx * dx + dy * dy) / 2000;
+            if (d > maxDelay) {
+                maxDelay = d;
+            }
+            return d;
         }
 
         for each (info in _current) {
@@ -69,6 +74,7 @@ public class Animator extends Sprite {
         _current = next;
 
 //        trace(getTimer() - t);
+        return maxDelay;
     }
 
 

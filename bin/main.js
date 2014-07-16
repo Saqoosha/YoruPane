@@ -5025,7 +5025,7 @@ Detects support for the `window.requestAnimationFrame` API, for offloading anima
 
 
 },{"./../lib/Modernizr":3,"./../lib/prefixed":20}],31:[function(require,module,exports){
-var App, Modernizr, Rectangle, mat2d, vec2, _ref,
+var App, DummyApp, Modernizr, Rectangle, mat2d, vec2, _ref,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 require('browsernizr/test/canvas');
@@ -5066,6 +5066,8 @@ Rectangle = (function() {
 App = (function() {
   function App() {
     this.draw = __bind(this.draw, this);
+    this.hide = __bind(this.hide, this);
+    this.show = __bind(this.show, this);
     document.getElementById('masthead').style.backgroundColor = 'white';
     this.canvas = document.createElement('canvas');
     this.canvas.width = window.innerWidth;
@@ -5074,26 +5076,44 @@ App = (function() {
     this.canvas.style.position = 'fixed';
     this.canvas.style.left = 0;
     this.canvas.style.top = 0;
+    this.canvas.style.display = 'none';
+    this.hidden = true;
     this.navi = document.getElementById('navi');
     this.ctx = this.canvas.getContext('2d');
-    this.startTime = Date.now();
-    this.draw();
-    this.count = 0;
-    this.rotation = 0;
+    this.ctx.fillStyle = 'red';
+    this.ctx.fillRect(0, 0, 100, 100);
   }
 
-  App.prototype.draw = function() {
+  App.prototype.show = function() {
+    this.canvas.style.display = 'block';
+    this.hidden = false;
+    return this.draw();
+  };
+
+  App.prototype.hide = function() {
+    this.canvas.style.display = 'none';
+    return this.hidden = true;
+  };
+
+  App.prototype.draw = function(params) {
     var a, bannerPos, bl, br, e, ex, ey, h, hit, interval, mat, p, radius, sx, sy, tl, tr, w, x, x0, x1, y, y0, y1, _i, _results;
-    requestAnimationFrame(this.draw);
+    if (!params) {
+      params = this.params;
+    } else {
+      this.params = params;
+    }
+    if (this.hidden) {
+      return;
+    }
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    bannerPos = [Math.round((window.innerWidth - 950) / 2), Math.round(navi.getBoundingClientRect().top)];
+    bannerPos = [Math.round((window.innerWidth - 950) / 2), Math.round(this.navi.getBoundingClientRect().top)];
     w = window.innerWidth;
     h = window.innerHeight;
     try {
       mat = mat2d.create();
-      mat2d.rotate(mat, mat, this.rotation);
-      mat2d.translate(mat, mat, [-(bannerPos[0] + 950 / 2), -(bannerPos[1] + 600 / 2)]);
-      a = 30 * Math.PI / 180;
+      mat2d.rotate(mat, mat, params.rotation * Math.PI / 180);
+      mat2d.translate(mat, mat, [-(bannerPos[0] + params.origin.x), -(bannerPos[1] + params.origin.y)]);
+      a = params.shear * Math.PI / 180;
       mat2d.multiply(mat, [1, Math.sin(a), 0, Math.cos(a), 0, 0], mat);
       tl = vec2.transformMat2d(vec2.create(), [0, 0], mat);
       tr = vec2.transformMat2d(vec2.create(), [w, 0], mat);
@@ -5103,17 +5123,17 @@ App = (function() {
       x1 = Math.max(tl[0], tr[0], bl[0], br[0]);
       y0 = Math.min(tl[1], tr[1], bl[1], br[1]);
       y1 = Math.max(tl[1], tr[1], bl[1], br[1]);
-      radius = 10;
-      interval = 50;
+      radius = params.radius;
+      interval = params.interval;
       hit = new Rectangle(0, 0, w, h);
       hit.inflate(radius, radius);
       mat2d.invert(mat, mat);
-      sy = Math.floor((y0 - radius) / interval) * interval;
+      sy = Math.ceil((y0 - radius) / interval) * interval;
       ey = Math.ceil((y1 + radius) / interval) * interval;
-      sx = Math.floor((x0 - radius) / interval) * interval;
+      sx = Math.ceil((x0 - radius) / interval) * interval;
       ex = Math.ceil((x1 + radius) / interval) * interval;
       p = vec2.create();
-      this.ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
+      this.ctx.fillStyle = params.color;
       _results = [];
       for (y = _i = sy; interval > 0 ? _i < ey : _i > ey; y = _i += interval) {
         _results.push((function() {
@@ -5143,7 +5163,20 @@ App = (function() {
 
 })();
 
-window.dotgen = new App();
+DummyApp = (function() {
+  function DummyApp() {}
+
+  DummyApp.prototype.show = function() {};
+
+  DummyApp.prototype.hide = function() {};
+
+  DummyApp.prototype.draw = function() {};
+
+  return DummyApp;
+
+})();
+
+window.dotgen = Modernizr.canvas ? new App() : new DummyApp();
 
 
 },{"browsernizr":2,"browsernizr/test/canvas":29,"browsernizr/test/requestanimationframe":30,"glmatrix":1}]},{},[31]);

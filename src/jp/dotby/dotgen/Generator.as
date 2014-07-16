@@ -19,7 +19,6 @@ public class Generator extends Sprite {
 
         var mtx:Matrix = new Matrix();
         mtx.translate(-origin.x, -origin.y);
-//        mtx.rotate(10 * Math.PI / 180);
         mtx.rotate(rotation * Math.PI / 180);
         if (shear > 0) {
             var m2:Matrix = new Matrix();

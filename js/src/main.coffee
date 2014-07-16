@@ -32,37 +32,44 @@ class App
     @canvas.style.position = 'fixed'
     @canvas.style.left = 0
     @canvas.style.top = 0
+    @canvas.style.display = 'none';
+    @hidden = true
 
     @navi = document.getElementById('navi')
     @ctx = @canvas.getContext('2d')
+    @ctx.fillStyle = 'red'
+    @ctx.fillRect(0, 0, 100, 100)
 
-    @startTime = Date.now()
+  show: =>
+    @canvas.style.display = 'block'
+    @hidden = false
     @draw()
-    @count = 0
 
-    @rotation = 0
+  hide: =>
+    @canvas.style.display = 'none'
+    @hidden = true
 
+  draw: (params) =>
+    if not params
+      params = @params
+    else
+      @params = params
 
-  draw: =>
-    requestAnimationFrame(@draw)
-#    t = Date.now() - @startTime
-#    if ++@count % 5 isnt 0 then return
+    if @hidden then return
 
     @ctx.clearRect(0, 0, @canvas.width, @canvas.height)
-#    @ctx.fillStyle = 'blue'
-    bannerPos = [Math.round((window.innerWidth - 950) / 2), Math.round(navi.getBoundingClientRect().top)]
-#    @ctx.fillRect(bannerPos[0], bannerPos[1], 950, 600)
+    bannerPos = [Math.round((window.innerWidth - 950) / 2), Math.round(@navi.getBoundingClientRect().top)]
 
     w = window.innerWidth
     h = window.innerHeight
 
     try
-
       mat = mat2d.create()
-      mat2d.rotate(mat, mat, @rotation)
-      mat2d.translate(mat, mat, [-(bannerPos[0] + 950/2), -(bannerPos[1] + 600/2)])
-      a = 30 * Math.PI / 180
+      mat2d.rotate(mat, mat, params.rotation * Math.PI / 180)
+      mat2d.translate(mat, mat, [-(bannerPos[0] + params.origin.x), -(bannerPos[1] + params.origin.y)])
+      a = params.shear * Math.PI / 180
       mat2d.multiply(mat, [1, Math.sin(a), 0, Math.cos(a), 0, 0], mat)
+
       tl = vec2.transformMat2d(vec2.create(), [0, 0], mat)
       tr = vec2.transformMat2d(vec2.create(), [w, 0], mat)
       bl = vec2.transformMat2d(vec2.create(), [0, h], mat)
@@ -72,18 +79,18 @@ class App
       y0 = Math.min(tl[1], tr[1], bl[1], br[1])
       y1 = Math.max(tl[1], tr[1], bl[1], br[1])
 
-      radius = 10
-      interval = 50
+      radius = params.radius
+      interval = params.interval
       hit = new Rectangle(0, 0, w, h)
       hit.inflate(radius, radius)
 
       mat2d.invert(mat, mat)
-      sy = Math.floor((y0 - radius) / interval) * interval
-      ey = Math.ceil((y1 + radius) / interval) * interval;
-      sx = Math.floor((x0 - radius) / interval) * interval;
-      ex = Math.ceil((x1 + radius) / interval) * interval;
+      sy = Math.ceil((y0 - radius) / interval) * interval
+      ey = Math.ceil((y1 + radius) / interval) * interval
+      sx = Math.ceil((x0 - radius) / interval) * interval
+      ex = Math.ceil((x1 + radius) / interval) * interval
       p = vec2.create()
-      @ctx.fillStyle = 'rgba(0, 0, 255, 0.5)'
+      @ctx.fillStyle = params.color
       for y in [sy...ey] by interval
         for x in [sx...ex] by interval
           vec2.transformMat2d(p, [x, y], mat)
@@ -98,5 +105,11 @@ class App
 
 
 
+class DummyApp
+  constructor: ->
+  show: ->
+  hide: ->
+  draw: ->
 
-window.dotgen = new App()
+
+window.dotgen = if Modernizr.canvas then new App() else new DummyApp()
