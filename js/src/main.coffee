@@ -58,6 +58,8 @@ class App
     if @hidden then return
 
     @ctx.clearRect(0, 0, @canvas.width, @canvas.height)
+    @ctx.fillStyle = params.bgcolor
+    @ctx.fillRect(0, 0, @canvas.width, @canvas.height)
     bannerPos = [Math.round((window.innerWidth - 950) / 2), Math.round(@navi.getBoundingClientRect().top)]
 
     w = window.innerWidth

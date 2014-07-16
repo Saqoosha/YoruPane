@@ -119,13 +119,16 @@ public class Controller extends Sprite {
         var shear:int = Math.floor(Math.random() * 4) * 15;
         var info:Vector.<DotInfo> = Generator.generate(origin, area, radius, color, interval, rotation, shear);
         var delay:Number = _animator.transition(info);
+
+        var bgcolor:uint = Math.random() * 0xffffff;
+        graphics.clear();
+        graphics.beginFill(bgcolor);
+        graphics.drawRect(0, 0, 950, 600);
+        graphics.endFill();
+
         if (ExternalInterface.available) {
-            var p:Number = 0.15;
-            var q:Number = 1.0 - p;
-            var r:int = (color >> 16 & 0xff) * p + 255 * q;
-            var g:int = (color >> 8 & 0xff) * p + 255 * q;
-            var b:int = (color & 0xff) * p + 255 * q;
-            color = r << 16 | g << 8 | b;
+            color = colorTint(color, 0xffffff, 0.5);
+            bgcolor = colorTint(bgcolor, 0xffffff, 0.5);
             setTimeout(function():void {
                 ExternalInterface.call('function(params){' +
                         'window.dotgen.draw(params);' +
@@ -133,6 +136,7 @@ public class Controller extends Sprite {
                     origin: {x: origin.x, y: origin.y},
                     radius: radius,
                     color: '#' + ('00000' + color.toString(16)).substr(-6),
+                    bgcolor: '#' + ('00000' + bgcolor.toString(16)).substr(-6),
                     interval: interval,
                     rotation: rotation,
                     shear: shear
@@ -140,6 +144,21 @@ public class Controller extends Sprite {
             }, (delay + 0.5) * 1000);
         }
         setTimeout(nextDots, (delay + 1) * 1000);
+    }
+
+
+    public function colorTint(base:uint, target:uint, ratio:Number):uint {
+        var ra:int = base >> 16 & 0xff;
+        var ga:int = base >> 8 & 0xff;
+        var ba:int = base & 0xff;
+        var rb:int = target >> 16 & 0xff;
+        var gb:int = target >> 8 & 0xff;
+        var bb:int = target & 0xff;
+        var p:Number = 1.0 - ratio;
+        var r:int = ra * ratio + rb * p;
+        var g:int = ga * ratio + gb * p;
+        var b:int = ba * ratio + bb * p;
+        return r << 16 | g << 8 | b;
     }
 }
 }

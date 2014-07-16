@@ -8,13 +8,16 @@ module.exports = (grunt) ->
         transform: ['coffeeify']
         extension: ['.coffee', '.js']
 
-    watch:
-      coffee:
-        files: ['src/**/*.coffee']
-        tasks: ['browserify', 'copy']
+    uglify:
+      'out/main.js': 'out/main.js'
 
     copy:
       '../bin/main.js': 'out/main.js'
+
+    watch:
+      coffee:
+        files: ['src/**/*.coffee']
+        tasks: ['browserify', 'uglify', 'copy']
 
     connect:
       server:
@@ -25,5 +28,6 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-contrib-watch')
   grunt.loadNpmTasks('grunt-contrib-connect')
   grunt.loadNpmTasks('grunt-contrib-copy')
+  grunt.loadNpmTasks('grunt-contrib-uglify')
   grunt.loadNpmTasks('grunt-browserify')
-  grunt.registerTask('default', ['connect', 'browserify', 'copy', 'watch'])
+  grunt.registerTask('default', ['connect', 'browserify', 'uglify', 'copy', 'watch'])
