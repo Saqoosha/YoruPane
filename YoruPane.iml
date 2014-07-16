@@ -2,7 +2,7 @@
 <module type="Flex" version="4">
   <component name="FlexBuildConfigurationManager" active="YoruPane">
     <configurations>
-      <configuration name="YoruPane" pure-as="true" main-class="YoruPane" output-file="YoruPane.swf" output-folder="$MODULE_DIR$/fla">
+      <configuration name="YoruPane" pure-as="true" main-class="Controller" output-file="YoruPane.swf" output-folder="$MODULE_DIR$/fla">
         <dependencies target-player="10.2">
           <entries>
             <entry library-name="greensock" library-level="project">

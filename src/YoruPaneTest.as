@@ -15,7 +15,7 @@ import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.utils.setInterval;
 
-import jp.dotby.dotgen.DotGen;
+import jp.dotby.dotgen.Generator;
 import jp.dotby.dotgen.DotInfo;
 
 [SWF(width=950, height=600, frameRate=120, backgroundColor=0xffffff)]
@@ -27,7 +27,7 @@ public class YoruPaneTest extends Sprite {
     }
 
 
-    private var _dotgen:DotGen;
+    private var _dotgen:Generator;
 
 
     private function nextDots():void {
@@ -38,7 +38,7 @@ public class YoruPaneTest extends Sprite {
         var interval:Number = r * 2 + 5 + Math.random() * 50;
         var rotation:Number = Math.floor(Math.random() * 10) * 5;
         var shear:Number = Math.floor(Math.random() * 4) * 15;
-        var info:Vector.<DotInfo> = DotGen.generate(origin, area, r, color, interval, rotation, shear);
+        var info:Vector.<DotInfo> = Generator.generate(origin, area, r, color, interval, rotation, shear);
         _dotgen.transition(info);
     }
 
@@ -50,7 +50,7 @@ public class YoruPaneTest extends Sprite {
 
         TweenPlugin.activate([ColorTransformPlugin]);
 
-        _dotgen = new DotGen();
+        _dotgen = new Generator();
         addChild(_dotgen);
 
         setInterval(nextDots, 2000);

@@ -7,30 +7,34 @@ import com.greensock.plugins.TweenPlugin;
 
 import flash.display.Sprite;
 import flash.events.Event;
+import flash.external.ExternalInterface;
 import flash.geom.Point;
 import flash.geom.Rectangle;
-import flash.utils.setInterval;
 import flash.utils.setTimeout;
 
-import jp.dotby.dotgen.DotGen;
+import jp.dotby.dotgen.Animator;
 import jp.dotby.dotgen.DotInfo;
+import jp.dotby.dotgen.Generator;
 
-import net.hires.debug.Stats;
+public class Controller extends Sprite {
 
-public class YoruPane extends Sprite {
 
     [Embed(source='../js/out/main.js', mimeType='application/octet-stream')]
     private static const JSSRC:Class;
 
-    public function YoruPane() {
+
+    private var _animator:Animator;
+
+
+    public function Controller() {
         TweenPlugin.activate([ColorTransformPlugin]);
 
         addEventListener(Event.ADDED_TO_STAGE, _handleAddedToStage);
 
-        _dotgen = new DotGen();
-        _dotgen.x = 600;
-        _dotgen.scaleX = _dotgen.scaleY = 0.4;
-        addChild(_dotgen);
+        _animator = new Animator();
+        _animator.x = 600;
+        _animator.scaleX = _animator.scaleY = 0.4;
+        addChild(_animator);
 //        addChild(new Stats());
 
 //        setInterval(nextDots, 2000);
@@ -38,14 +42,20 @@ public class YoruPane extends Sprite {
     }
 
     public function open():void {
-        _dotgen.x = 0;
-        _dotgen.scaleX = _dotgen.scaleY = 1.0;
+        _animator.x = 0;
+        _animator.scaleX = _animator.scaleY = 1.0;
+        if (ExternalInterface.available) {
+            ExternalInterface.call('function(){}');
+        }
     }
 
 
     public function close():void {
-        _dotgen.x = 600;
-        _dotgen.scaleX = _dotgen.scaleY = 0.4;
+        _animator.x = 600;
+        _animator.scaleX = _animator.scaleY = 0.4;
+        if (ExternalInterface.available) {
+            ExternalInterface.call('function(){}');
+        }
     }
 
 
@@ -55,7 +65,6 @@ public class YoruPane extends Sprite {
         graphics.endFill();
     }
 
-    private var _dotgen:DotGen;
 
     private function nextDots():void {
         var origin:Point = new Point(stage.stageWidth / 2 + Math.random() * 200, stage.stageHeight / 2 + Math.random() * 200);
@@ -65,8 +74,8 @@ public class YoruPane extends Sprite {
         var interval:Number = r * 2 + 5 + Math.random() * 50;
         var rotation:Number = Math.floor(Math.random() * 18) * 5;
         var shear:Number = Math.floor(Math.random() * 4) * 15;
-        var info:Vector.<DotInfo> = DotGen.generate(origin, area, r, color, interval, rotation, shear);
-        _dotgen.transition(info);
+        var info:Vector.<DotInfo> = Generator.generate(origin, area, r, color, interval, rotation, shear);
+        _animator.transition(info);
         setTimeout(nextDots, 2000);
     }
 }

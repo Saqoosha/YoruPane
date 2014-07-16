@@ -4,9 +4,6 @@
 package jp.dotby.dotgen {
 
 import com.greensock.TweenLite;
-import com.greensock.easing.Back;
-import com.greensock.easing.Cubic;
-import com.greensock.easing.Elastic;
 import com.greensock.easing.Expo;
 
 import flash.display.Shape;
@@ -25,13 +22,9 @@ public class Dot extends Shape {
         x = info.x;
         y = info.y;
         scaleX = scaleY = 0;
-        _originalScale = info.r / 100;
 
         TweenLite.to(this, 0, {colorTransform: {tint: info.color, tintAmount: 1}});
     }
-
-
-    private var _originalScale:Number;
 
 
     public function destroy(delay:Number = 0):void {
@@ -50,12 +43,12 @@ public class Dot extends Shape {
 
 
     public function transitionTo(info:DotInfo, delay:Number = 0, destroyOnComplete:Boolean = false):void {
-        _originalScale = info.r / 100;
+        var scale:Number = info.r / 100;
         var params:Object = {
             x: info.x,
             y: info.y,
-            scaleX: _originalScale,
-            scaleY: _originalScale,
+            scaleX: scale,
+            scaleY: scale,
             colorTransform: {
                 tint: info.color,
                 tintAmount: 1
