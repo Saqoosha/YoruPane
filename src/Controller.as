@@ -3,6 +3,9 @@
  */
 package {
 import com.adobe.images.PNGEncoder;
+import com.greensock.TweenLite;
+import com.greensock.easing.Back;
+import com.greensock.easing.Cubic;
 import com.greensock.plugins.ColorTransformPlugin;
 import com.greensock.plugins.TweenPlugin;
 
@@ -17,6 +20,7 @@ import flash.external.ExternalInterface;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.net.FileReference;
+import flash.net.FileReference;
 import flash.system.Capabilities;
 import flash.utils.ByteArray;
 import flash.utils.setTimeout;
@@ -28,6 +32,7 @@ import jp.dotby.dotgen.Generator;
 public class Controller extends Sprite {
 
 
+    public var dl:Sprite;
     public var dlpc:Sprite;
     public var dlip:Sprite;
     public var dlad:Sprite;
@@ -54,14 +59,48 @@ public class Controller extends Sprite {
         _animator.scaleX = _animator.scaleY = 0.4;
         addChildAt(_animator, 0);
 
-//        addEventListener(MouseEvent.CLICK, _handleClick);
+        dl.mouseChildren = false;
+        dl.buttonMode = true;
+        dl.addEventListener(MouseEvent.CLICK, _handleDLClick);
+
         dlpc.mouseChildren = false;
+        dlpc.buttonMode = true;
+        dlpc.scaleX = dlpc.scaleY = 0;
         dlpc.addEventListener(MouseEvent.CLICK, _handleClick);
+
         dlip.mouseChildren = false;
+        dlip.buttonMode = true;
+        dlip.scaleX = dlip.scaleY = 0;
         dlip.addEventListener(MouseEvent.CLICK, _handleClick);
+
         dlad.mouseChildren = false;
+        dlad.buttonMode = true;
+        dlad.scaleX = dlad.scaleY = 0;
         dlad.addEventListener(MouseEvent.CLICK, _handleClick);
     }
+
+    private function _handleDLClick(event:MouseEvent):void {
+        if (dlpc.scaleX) {
+            hideDLButtons();
+        } else {
+            showDLButtons();
+        }
+    }
+
+
+    public function showDLButtons():void {
+        TweenLite.to(dlpc, 0.3, {scaleX: 0.6, scaleY: 0.6, ease: Back.easeOut, delay: range(0, 0.1)});
+        TweenLite.to(dlip, 0.3, {scaleX: 0.6, scaleY: 0.6, ease: Back.easeOut, delay: range(0, 0.1)});
+        TweenLite.to(dlad, 0.3, {scaleX: 0.6, scaleY: 0.6, ease: Back.easeOut, delay: range(0, 0.1)});
+    }
+
+
+    public function hideDLButtons():void {
+        TweenLite.to(dlpc, range(0.2, 0.3), {scaleX: 0, scaleY: 0, ease: Cubic.easeOut, delay: range(0, 0.1)});
+        TweenLite.to(dlip, range(0.2, 0.3), {scaleX: 0, scaleY: 0, ease: Cubic.easeOut, delay: range(0, 0.1)});
+        TweenLite.to(dlad, range(0.2, 0.3), {scaleX: 0, scaleY: 0, ease: Cubic.easeOut, delay: range(0, 0.1)});
+    }
+
 
     private function _handleClick(event:MouseEvent):void {
 //        if (ExternalInterface.available) {
@@ -97,7 +136,11 @@ public class Controller extends Sprite {
         }
         img.draw(s);
         var png:ByteArray = PNGEncoder.encode(img);
-        new FileReference().save(png, 'dot.png');
+        var ref:FileReference = new FileReference();
+        ref.addEventListener(Event.SELECT, function(e:Event):void {
+            hideDLButtons();
+        });
+        ref.save(png, 'dot.png');
     }
 
     public function open():void {
