@@ -55,6 +55,15 @@ public class Generator extends Sprite {
             }
         }
 
+        if (Math.random() < 3 / 10) {
+            var d:DotInfo = info[~~(Math.random() * info.length)];
+            var dx:Number = 9.8 / 15 * d.r;
+            var dy:Number = 11.3 / 15 * d.r;
+            var r:Number = 5.13 / 15 * d.r;
+            info.push(new DotInfo(ID++, d.x - dx, d.y - dy, r, color));
+            info.push(new DotInfo(ID++, d.x + dx, d.y - dy, r, color));
+        }
+
         return info;
     }
 
