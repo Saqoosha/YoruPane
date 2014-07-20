@@ -1,10 +1,8 @@
-require('browsernizr/test/canvas')
+#require('browsernizr/test/canvas')
 require('browsernizr/test/svg')
 require('browsernizr/test/requestanimationframe')
 Modernizr = require('browsernizr')
-console.log(Modernizr)
 
-{mat2d: mat2d, vec2: vec2} = require('glmatrix')
 {Snap: Snap, mina: mina} = require('svapsvg')
 
 
@@ -53,6 +51,19 @@ class SVGApp
 
     @dots = {}
 
+    @inner = new Rectangle(0, 0, 950, 600)
+    @inner.inflate(-100, -100)
+
+    setInterval(@resize, 500)
+
+
+  resize: =>
+    @paper.attr(width: window.innerWidth + 'px', height: window.innerHeight + 'px')
+    mtx = Snap.matrix()
+    mtx.translate(Math.round((window.innerWidth - 950) / 2), Math.round(@navi.getBoundingClientRect().top))
+    @g.attr(transform: mtx.toTransformString())
+    @bg.attr(width: window.innerWidth, height: window.innerHeight)
+
 
   getInfo: =>
     return [Math.round((window.innerWidth - 950) / 2), Math.round(@navi.getBoundingClientRect().top), window.innerWidth, window.innerHeight]
@@ -74,37 +85,38 @@ class SVGApp
 
   update: (info) =>
     if @hidden then return
-    try
-      for {op: op, arg: arg} in info
-        switch op
-          when 'new'
+
+    for {op: op, arg: arg} in info
+      switch op
+        when 'new'
+          if not @inner.contains([arg.x, arg.y])
             p = arg.from or arg
             d = @paper.circle(p.x, p.y, 0).attr(fill: '#' + ('00000' + p.color.toString(16)).substr(-6))
             @g.add(d)
             setTimeout(@animate, arg.delay * 1000, d, arg)
             @dots[arg.id] = d
 
-          when 'move'
-            d = @dots[arg.from]
-            if d
-              delete @dots[arg.from]
-              setTimeout(@animate, arg.delay * 1000, d, arg)
-              @dots[arg.id] = d if not arg.destroy
-            else if not arg.destroy
-              d = @paper.circle(arg.x, arg.y, 0).attr(fill: '#' + ('00000' + arg.color.toString(16)).substr(-6))
-              @g.add(d)
-              setTimeout(@animate, arg.delay * 1000, d, arg)
-              @dots[arg.id] = d
+        when 'move'
+          d = @dots[arg.from]
+          if d
+            delete @dots[arg.from]
+            setTimeout(@animate, arg.delay * 1000, d, arg)
+            @dots[arg.id] = d if not arg.destroy
+          else if not arg.destroy
+            d = @paper.circle(arg.x, arg.y, 0).attr(fill: '#' + ('00000' + arg.color.toString(16)).substr(-6))
+            @g.add(d)
+            setTimeout(@animate, arg.delay * 1000, d, arg)
+            @dots[arg.id] = d
 
-          when 'del'
-            d = @dots[arg]
-            d?.remove()
-            delete @dots[arg]
+        when 'del'
+          d = @dots[arg]
+          d?.remove()
+          delete @dots[arg]
 
-          when 'bg'
-            @bg.attr(fill: '#' + ('00000' + arg.toString(16)).substr(-6))
-    catch e
-      console.log(e)
+        when 'bg'
+          @bg.attr(fill: '#' + ('00000' + arg.toString(16)).substr(-6))
+          @resize()
+
 
   animate: (d, arg) =>
     c = '#' + ('00000' + arg.color.toString(16)).substr(-6)
@@ -115,4 +127,4 @@ class SVGApp
 
 
 
-window.dotgen = if Modernizr.svg then new SVGApp() else new BaseApp()
+window.dotgen = if Modernizr.svg and Modernizr.raf then new SVGApp() else new BaseApp()
