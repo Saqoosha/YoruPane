@@ -39,14 +39,14 @@ class SVGApp
     @paper.node.style.left = 0
     @paper.node.style.top = 0
     @paper.node.style.zIndex = 0
-#    @paper.node.style.display = 'none'
+    @paper.node.style.display = 'none'
     @hidden = true
 
     @bg = @paper.rect(0, 0, window.innerWidth, window.innerHeight).attr(fill: '#ffffff')
 
     @navi = document.getElementById('navi')
     mtx = Snap.matrix()
-    mtx.translate(Math.round((window.innerWidth - 950) / 2), Math.round(@navi.getBoundingClientRect().top))
+    mtx.translate(Math.round((document.body.clientWidth - 950) / 2), Math.round(@navi.getBoundingClientRect().top))
     @g = @paper.g().attr(transform: mtx.toTransformString())
 
     @dots = {}
@@ -60,13 +60,13 @@ class SVGApp
   resize: =>
     @paper.attr(width: window.innerWidth + 'px', height: window.innerHeight + 'px')
     mtx = Snap.matrix()
-    mtx.translate(Math.round((window.innerWidth - 950) / 2), Math.round(@navi.getBoundingClientRect().top))
+    mtx.translate(Math.round((document.body.clientWidth - 950) / 2), Math.round(@navi.getBoundingClientRect().top))
     @g.attr(transform: mtx.toTransformString())
     @bg.attr(width: window.innerWidth, height: window.innerHeight)
 
 
   getInfo: =>
-    return [Math.round((window.innerWidth - 950) / 2), Math.round(@navi.getBoundingClientRect().top), window.innerWidth, window.innerHeight]
+    return [Math.round((document.body.clientWidth - 950) / 2), Math.round(@navi.getBoundingClientRect().top), window.innerWidth, window.innerHeight]
 
 
   show: =>
