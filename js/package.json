@@ -10,14 +10,11 @@
     "grunt-contrib-watch": "~0.6.1",
     "grunt-contrib-connect": "~0.8.0",
     "grunt-contrib-copy": "~0.5.0",
-    "browsernizr": "~1.0.2"
+    "browsernizr": "~1.0.2",
+    "grunt-contrib-concat": "~0.5.0"
   },
   "browser": {
-    "glmatrix": "./libs/gl-matrix.js"
-  },
-  "browserify-shim": {
-    "glmatrix": {
-      "exports": "glMatrix"
-    }
+    "glmatrix": "./libs/gl-matrix.js",
+    "svapsvg": "./libs/snap.svg.js"
   }
 }

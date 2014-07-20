@@ -8,6 +8,13 @@ module.exports = (grunt) ->
         transform: ['coffeeify']
         extension: ['.coffee', '.js']
 
+    concat:
+      '../src/Hoge.as': [
+        '../src/Hoge.as.header',
+        'out/main.js',
+        '../src/Hoge.as.footer'
+      ]
+
     uglify:
       'out/main.js': 'out/main.js'
 
@@ -17,7 +24,9 @@ module.exports = (grunt) ->
     watch:
       coffee:
         files: ['src/**/*.coffee']
-        tasks: ['browserify', 'uglify', 'copy']
+        tasks: ['browserify', 'concat', 'copy']
+      options:
+        livereload: true
 
     connect:
       server:
@@ -27,7 +36,8 @@ module.exports = (grunt) ->
 
   grunt.loadNpmTasks('grunt-contrib-watch')
   grunt.loadNpmTasks('grunt-contrib-connect')
+  grunt.loadNpmTasks('grunt-contrib-concat')
   grunt.loadNpmTasks('grunt-contrib-copy')
   grunt.loadNpmTasks('grunt-contrib-uglify')
   grunt.loadNpmTasks('grunt-browserify')
-  grunt.registerTask('default', ['connect', 'browserify', 'uglify', 'copy', 'watch'])
+  grunt.registerTask('default', ['connect', 'browserify', 'concat', 'copy', 'watch'])

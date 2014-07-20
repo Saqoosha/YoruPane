@@ -1,9 +1,20 @@
 require('browsernizr/test/canvas')
+require('browsernizr/test/svg')
 require('browsernizr/test/requestanimationframe')
 Modernizr = require('browsernizr')
 console.log(Modernizr)
 
 {mat2d: mat2d, vec2: vec2} = require('glmatrix')
+
+try
+  console.log('loading snapsvg')
+  {Snap: Snap} = require('svapsvg')
+  console.log(Snap)
+  console.log('loaded snapsvg!')
+catch e
+  console.log e
+
+
 
 
 class Rectangle
@@ -20,7 +31,54 @@ class Rectangle
     @x <= v[0] <= @x + @w and @y <= v[1] <= @y + @h
 
 
-class App
+
+class BaseApp
+  show: =>
+  hide: =>
+  draw: =>
+
+
+
+class SVGApp
+
+  constructor: ->
+    document.getElementById('masthead').style.backgroundColor = 'white'
+
+    @paper = Snap(window.innerWidth, window.innerHeight)#.attr(style: 'position:absolute;left:0;top:0;')
+    @paper.node.style.position = 'fixed'
+    @paper.node.style.left = 0
+    @paper.node.style.top = 0
+    @paper.node.style.zIndex = 0
+    @paper.node.style.display = 'none'
+    @hidden = true
+
+    @circle = @paper.circle(150, 150, 300).attr(fill: 'red')
+
+  show: =>
+    @paper.node.style.display = 'block'
+    @hidden = false
+    @draw()
+
+  hide: =>
+    @paper.node.style.display = 'none'
+    @hidden = true
+
+  draw: (params) =>
+    if not params
+      params = @params
+    else
+      @params = params
+
+    if @hidden then return
+
+    try
+      @circle.attr(fill: params.bgcolor)
+    catch e
+      console.log e
+
+
+
+class CanvasApp extends BaseApp
 
   constructor: ->
     document.getElementById('masthead').style.backgroundColor = 'white'
@@ -107,11 +165,6 @@ class App
 
 
 
-class DummyApp
-  constructor: ->
-  show: ->
-  hide: ->
-  draw: ->
-
-
-window.dotgen = if Modernizr.canvas then new App() else new DummyApp()
+#window.dotgen = if Modernizr.canvas then new CanvasApp() else new BaseApp()
+window.dotgen = if Modernizr.svg then new SVGApp() else new BaseApp()
+console.log('Installed', window.dotgen)

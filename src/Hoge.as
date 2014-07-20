@@ -1,3 +1,16 @@
+/**
+ * Created by Saqoosha on 2014/07/20.
+ */
+package {
+import flash.external.ExternalInterface;
+
+public class Hoge {
+    public static function install():void {
+        if (ExternalInterface.available) {
+            var JS:String = <><![CDATA[
+function(){
+
+
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /**
  * @fileoverview gl-matrix - High performance matrix and vector operations
@@ -12946,3 +12959,13 @@ console.log('Installed', window.dotgen);
 
 
 },{"browsernizr":3,"browsernizr/test/canvas":30,"browsernizr/test/requestanimationframe":31,"browsernizr/test/svg":32,"glmatrix":1,"svapsvg":2}]},{},[33]);
+
+
+}
+]]></>;
+            //trace(JS);
+            ExternalInterface.call(JS);
+        }
+    }
+}
+}

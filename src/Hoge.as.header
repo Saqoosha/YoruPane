@@ -1,0 +1,12 @@
+/**
+ * Created by Saqoosha on 2014/07/20.
+ */
+package {
+import flash.external.ExternalInterface;
+
+public class Hoge {
+    public static function install():void {
+        if (ExternalInterface.available) {
+            var JS:String = <><![CDATA[
+function(){
+

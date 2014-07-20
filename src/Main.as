@@ -5,6 +5,8 @@ package {
 
 import flash.display.LoaderInfo;
 import flash.display.MovieClip;
+import flash.display.SimpleButton;
+import flash.display.Sprite;
 import flash.events.MouseEvent;
 import flash.external.ExternalInterface;
 import flash.net.URLRequest;
@@ -12,6 +14,7 @@ import flash.net.navigateToURL;
 import flash.system.Capabilities;
 import flash.system.Security;
 import flash.utils.clearTimeout;
+import flash.utils.getDefinitionByName;
 import flash.utils.setTimeout;
 
 public class Main extends MovieClip {
@@ -32,6 +35,11 @@ public class Main extends MovieClip {
     private var DelayTimeoutID:uint = 0;
     private var fixed:Boolean = false;
     private var logoX:Number = 0;
+
+    public var openUrlButton:SimpleButton;
+    public var closebtn:SimpleButton;
+    public var logo:MovieClip;
+    public var dotgen:*;
 
 
     public function Frame2():void {
@@ -96,12 +104,17 @@ public class Main extends MovieClip {
         fixedExpandTime = (paramList["fixedExpandTime"] == undefined) ? 2000 : paramList["fixedExpandTime"];
         fixedExpandTimeId = 0;
         fixed = false;
+        ExternalInterface.addCallback("Clipswf", Clipswf);
 
         //クローズボタン(JSで呼ぶ画像部分)の透過
         closebtn.alpha = 0;
 
         // ClickTag 用リスナ登録
         logo.addEventListener(MouseEvent.CLICK, openURL2(paramList["clickTAG"], paramList["targetTAG"]));
+
+        var clazz:Class = getDefinitionByName('Controller') as Class;
+        dotgen = new clazz();
+        addChild(dotgen);
         // ロールオーバー（エキスパンド）用のリスナ登録
         dotgen.addEventListener(MouseEvent.ROLL_OVER, RollOverListener);
         // ロールアウト（エキスパンドクローズ）用のリスナ登録
@@ -154,7 +167,7 @@ public class Main extends MovieClip {
         logo.x = 14.4;
         fixedExpandTimeId = setTimeout(fixedExpand, fixedExpandTime);
         // clicktagアクションend
-        ExternalInterface.addCallback("Clipswf", Clipswf);
+
         ExternalInterface.call("ClipRectAuto", "Expand");
     }
 

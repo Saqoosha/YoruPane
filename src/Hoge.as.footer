@@ -1,0 +1,10 @@
+
+
+}
+]]></>;
+            //trace(JS);
+            ExternalInterface.call(JS);
+        }
+    }
+}
+}

@@ -9,7 +9,6 @@ import com.greensock.plugins.TweenPlugin;
 import flash.display.BitmapData;
 
 import flash.display.Sprite;
-import flash.display.StageDisplayState;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.external.ExternalInterface;
@@ -26,10 +25,6 @@ import jp.dotby.dotgen.Generator;
 public class Controller extends Sprite {
 
 
-    [Embed(source='../js/out/main.js', mimeType='application/octet-stream')]
-    private static const JSSRC:Class;
-
-
     public var dlpc:Sprite;
     public var dlip:Sprite;
     public var dlad:Sprite;
@@ -39,9 +34,7 @@ public class Controller extends Sprite {
 
 
     public function Controller() {
-        if (ExternalInterface.available) {
-            ExternalInterface.call('function(){' + new JSSRC() + '}');
-        }
+        Hoge.install();
 
         TweenPlugin.activate([ColorTransformPlugin]);
 
@@ -52,21 +45,20 @@ public class Controller extends Sprite {
         _animator.scaleX = _animator.scaleY = 0.4;
         addChildAt(_animator, 0);
 
-//        addEventListener(MouseEvent.CLICK, _handleClick);
+        addEventListener(MouseEvent.CLICK, _handleClick);
         dlpc.mouseChildren = false;
         dlpc.addEventListener(MouseEvent.CLICK, _handleClick);
         dlip.mouseChildren = false;
         dlip.addEventListener(MouseEvent.CLICK, _handleClick);
         dlad.mouseChildren = false;
         dlad.addEventListener(MouseEvent.CLICK, _handleClick);
-
-        nextDots();
     }
 
     private function _handleClick(event:MouseEvent):void {
 //        if (ExternalInterface.available) {
 //            ExternalInterface.call('function(){' +
-//                    'document.getElementsByClassName("aas")[0].webkitRequestFullscreen();' +
+////                    'document.getElementsByClassName("aas")[0].webkitRequestFullscreen();' +
+//                    'document.body.webkitRequestFullscreen();' +
 //                    '}');
 //        }
 
@@ -102,6 +94,8 @@ public class Controller extends Sprite {
         graphics.beginFill(_bgcolor = Math.random() * 0xffffff);
         graphics.drawRect(0, 0, stage.stageWidth, stage.stageHeight);
         graphics.endFill();
+
+        nextDots();
     }
 
 
@@ -128,9 +122,9 @@ public class Controller extends Sprite {
         graphics.endFill();
 
         if (ExternalInterface.available) {
-            color = colorTint(color, 0xffffff, 0.5);
-            _bgcolor = colorTint(_bgcolor, 0xffffff, 0.5);
-            setTimeout(function():void {
+            color = colorTint(color, 0xffffff, 0.95);
+            _bgcolor = colorTint(_bgcolor, 0xffffff, 0.95);
+            setTimeout(function ():void {
                 ExternalInterface.call('function(params){' +
                         'window.dotgen.draw(params);' +
                         '}', {
