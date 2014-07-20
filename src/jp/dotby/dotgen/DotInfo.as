@@ -19,5 +19,9 @@ public class DotInfo extends Agent {
     public function get r():Number {
         return rx;
     }
+
+    public function toJS():Object {
+        return {id: id, x: x, y: y, r: r, color: color};
+    }
 }
 }

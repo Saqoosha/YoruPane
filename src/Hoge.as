@@ -12728,10 +12728,8 @@ Detects support for SVG in `<embed>` or `<object>` elements.
 
 
 },{"./../lib/Modernizr":4}],33:[function(require,module,exports){
-var BaseApp, CanvasApp, Modernizr, Rectangle, SVGApp, Snap, e, mat2d, vec2, _ref,
-  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var BaseApp, Modernizr, Rectangle, SVGApp, Snap, mat2d, mina, vec2, _ref, _ref1,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 require('browsernizr/test/canvas');
 
@@ -12745,15 +12743,7 @@ console.log(Modernizr);
 
 _ref = require('glmatrix'), mat2d = _ref.mat2d, vec2 = _ref.vec2;
 
-try {
-  console.log('loading snapsvg');
-  Snap = require('svapsvg').Snap;
-  console.log(Snap);
-  console.log('loaded snapsvg!');
-} catch (_error) {
-  e = _error;
-  console.log(e);
-}
+_ref1 = require('svapsvg'), Snap = _ref1.Snap, mina = _ref1.mina;
 
 Rectangle = (function() {
   function Rectangle(x, y, w, h) {
@@ -12772,8 +12762,8 @@ Rectangle = (function() {
   };
 
   Rectangle.prototype.contains = function(v) {
-    var _ref1, _ref2;
-    return (this.x <= (_ref1 = v[0]) && _ref1 <= this.x + this.w) && (this.y <= (_ref2 = v[1]) && _ref2 <= this.y + this.h);
+    var _ref2, _ref3;
+    return (this.x <= (_ref2 = v[0]) && _ref2 <= this.x + this.w) && (this.y <= (_ref3 = v[1]) && _ref3 <= this.y + this.h);
   };
 
   return Rectangle;
@@ -12783,6 +12773,7 @@ Rectangle = (function() {
 BaseApp = (function() {
   function BaseApp() {
     this.draw = __bind(this.draw, this);
+    this.update = __bind(this.update, this);
     this.hide = __bind(this.hide, this);
     this.show = __bind(this.show, this);
   }
@@ -12790,6 +12781,8 @@ BaseApp = (function() {
   BaseApp.prototype.show = function() {};
 
   BaseApp.prototype.hide = function() {};
+
+  BaseApp.prototype.update = function() {};
 
   BaseApp.prototype.draw = function() {};
 
@@ -12799,21 +12792,34 @@ BaseApp = (function() {
 
 SVGApp = (function() {
   function SVGApp() {
-    this.draw = __bind(this.draw, this);
+    this.animate = __bind(this.animate, this);
+    this.update = __bind(this.update, this);
     this.hide = __bind(this.hide, this);
     this.show = __bind(this.show, this);
+    this.getInfo = __bind(this.getInfo, this);
+    var mtx;
     document.getElementById('masthead').style.backgroundColor = 'white';
     this.paper = Snap(window.innerWidth, window.innerHeight);
     this.paper.node.style.position = 'fixed';
     this.paper.node.style.left = 0;
     this.paper.node.style.top = 0;
     this.paper.node.style.zIndex = 0;
-    this.paper.node.style.display = 'none';
     this.hidden = true;
-    this.circle = this.paper.circle(150, 150, 300).attr({
-      fill: 'red'
+    this.bg = this.paper.rect(0, 0, window.innerWidth, window.innerHeight).attr({
+      fill: '#ffffff'
     });
+    this.navi = document.getElementById('navi');
+    mtx = Snap.matrix();
+    mtx.translate(Math.round((window.innerWidth - 950) / 2), Math.round(this.navi.getBoundingClientRect().top));
+    this.g = this.paper.g().attr({
+      transform: mtx.toTransformString()
+    });
+    this.dots = {};
   }
+
+  SVGApp.prototype.getInfo = function() {
+    return [Math.round((window.innerWidth - 950) / 2), Math.round(this.navi.getBoundingClientRect().top), window.innerWidth, window.innerHeight];
+  };
 
   SVGApp.prototype.show = function() {
     this.paper.node.style.display = 'block';
@@ -12822,125 +12828,75 @@ SVGApp = (function() {
   };
 
   SVGApp.prototype.hide = function() {
+    var e, _i, _len, _ref2;
     this.paper.node.style.display = 'none';
-    return this.hidden = true;
-  };
-
-  SVGApp.prototype.draw = function(params) {
-    if (!params) {
-      params = this.params;
-    } else {
-      this.params = params;
-    }
-    if (this.hidden) {
-      return;
-    }
-    try {
-      return this.circle.attr({
-        fill: params.bgcolor
-      });
-    } catch (_error) {
-      e = _error;
-      return console.log(e);
-    }
-  };
-
-  return SVGApp;
-
-})();
-
-CanvasApp = (function(_super) {
-  __extends(CanvasApp, _super);
-
-  function CanvasApp() {
-    this.draw = __bind(this.draw, this);
-    this.hide = __bind(this.hide, this);
-    this.show = __bind(this.show, this);
-    document.getElementById('masthead').style.backgroundColor = 'white';
-    this.canvas = document.createElement('canvas');
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
-    document.body.appendChild(this.canvas);
-    this.canvas.style.position = 'fixed';
-    this.canvas.style.left = 0;
-    this.canvas.style.top = 0;
-    this.canvas.style.display = 'none';
     this.hidden = true;
-    this.navi = document.getElementById('navi');
-    this.ctx = this.canvas.getContext('2d');
-    this.ctx.fillStyle = 'red';
-    this.ctx.fillRect(0, 0, 100, 100);
-  }
-
-  CanvasApp.prototype.show = function() {
-    this.canvas.style.display = 'block';
-    this.hidden = false;
-    return this.draw();
-  };
-
-  CanvasApp.prototype.hide = function() {
-    this.canvas.style.display = 'none';
-    return this.hidden = true;
-  };
-
-  CanvasApp.prototype.draw = function(params) {
-    var a, bannerPos, bl, br, ex, ey, h, hit, interval, mat, p, radius, sx, sy, tl, tr, w, x, x0, x1, y, y0, y1, _i, _results;
-    if (!params) {
-      params = this.params;
-    } else {
-      this.params = params;
+    _ref2 = this.g.selectAll('*');
+    for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+      e = _ref2[_i];
+      e.remove();
     }
+    this.bg.attr({
+      fill: '#ffffff'
+    });
+    return this.dots = {};
+  };
+
+  SVGApp.prototype.update = function(info) {
+    var arg, d, e, op, p, _i, _len, _ref2, _results;
     if (this.hidden) {
       return;
     }
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.fillStyle = params.bgcolor;
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    bannerPos = [Math.round((window.innerWidth - 950) / 2), Math.round(this.navi.getBoundingClientRect().top)];
-    w = window.innerWidth;
-    h = window.innerHeight;
     try {
-      mat = mat2d.create();
-      mat2d.rotate(mat, mat, params.rotation * Math.PI / 180);
-      mat2d.translate(mat, mat, [-(bannerPos[0] + params.origin.x), -(bannerPos[1] + params.origin.y)]);
-      a = params.shear * Math.PI / 180;
-      mat2d.multiply(mat, [1, Math.sin(a), 0, Math.cos(a), 0, 0], mat);
-      tl = vec2.transformMat2d(vec2.create(), [0, 0], mat);
-      tr = vec2.transformMat2d(vec2.create(), [w, 0], mat);
-      bl = vec2.transformMat2d(vec2.create(), [0, h], mat);
-      br = vec2.transformMat2d(vec2.create(), [w, h], mat);
-      x0 = Math.min(tl[0], tr[0], bl[0], br[0]);
-      x1 = Math.max(tl[0], tr[0], bl[0], br[0]);
-      y0 = Math.min(tl[1], tr[1], bl[1], br[1]);
-      y1 = Math.max(tl[1], tr[1], bl[1], br[1]);
-      radius = params.radius;
-      interval = params.interval;
-      hit = new Rectangle(0, 0, w, h);
-      hit.inflate(radius, radius);
-      mat2d.invert(mat, mat);
-      sy = Math.ceil((y0 - radius) / interval) * interval;
-      ey = Math.ceil((y1 + radius) / interval) * interval;
-      sx = Math.ceil((x0 - radius) / interval) * interval;
-      ex = Math.ceil((x1 + radius) / interval) * interval;
-      p = vec2.create();
-      this.ctx.fillStyle = params.color;
       _results = [];
-      for (y = _i = sy; interval > 0 ? _i < ey : _i > ey; y = _i += interval) {
-        _results.push((function() {
-          var _j, _results1;
-          _results1 = [];
-          for (x = _j = sx; interval > 0 ? _j < ex : _j > ex; x = _j += interval) {
-            vec2.transformMat2d(p, [x, y], mat);
-            if (hit.contains(p)) {
-              this.ctx.beginPath();
-              this.ctx.arc(p[0], p[1], radius, 0, Math.PI * 2, false);
-              _results1.push(this.ctx.fill());
+      for (_i = 0, _len = info.length; _i < _len; _i++) {
+        _ref2 = info[_i], op = _ref2.op, arg = _ref2.arg;
+        switch (op) {
+          case 'new':
+            p = arg.from || arg;
+            d = this.paper.circle(p.x, p.y, 0).attr({
+              fill: '#' + ('00000' + p.color.toString(16)).substr(-6)
+            });
+            this.g.add(d);
+            setTimeout(this.animate, arg.delay * 1000, d, arg);
+            _results.push(this.dots[arg.id] = d);
+            break;
+          case 'move':
+            d = this.dots[arg.from];
+            if (d) {
+              delete this.dots[arg.from];
+              setTimeout(this.animate, arg.delay * 1000, d, arg);
+              if (!arg.destroy) {
+                _results.push(this.dots[arg.id] = d);
+              } else {
+                _results.push(void 0);
+              }
+            } else if (!arg.destroy) {
+              d = this.paper.circle(arg.x, arg.y, 0).attr({
+                fill: '#' + ('00000' + arg.color.toString(16)).substr(-6)
+              });
+              this.g.add(d);
+              setTimeout(this.animate, arg.delay * 1000, d, arg);
+              _results.push(this.dots[arg.id] = d);
             } else {
-              _results1.push(void 0);
+              _results.push(void 0);
             }
-          }
-          return _results1;
-        }).call(this));
+            break;
+          case 'del':
+            d = this.dots[arg];
+            if (d != null) {
+              d.remove();
+            }
+            _results.push(delete this.dots[arg]);
+            break;
+          case 'bg':
+            _results.push(this.bg.attr({
+              fill: '#' + ('00000' + arg.toString(16)).substr(-6)
+            }));
+            break;
+          default:
+            _results.push(void 0);
+        }
       }
       return _results;
     } catch (_error) {
@@ -12949,13 +12905,26 @@ CanvasApp = (function(_super) {
     }
   };
 
-  return CanvasApp;
+  SVGApp.prototype.animate = function(d, arg) {
+    var c;
+    c = '#' + ('00000' + arg.color.toString(16)).substr(-6);
+    return d.animate({
+      cx: arg.x,
+      cy: arg.y,
+      r: arg.r,
+      fill: c
+    }, 100, mina.linear, function() {
+      if (arg.destroy) {
+        return d.remove();
+      }
+    });
+  };
 
-})(BaseApp);
+  return SVGApp;
+
+})();
 
 window.dotgen = Modernizr.svg ? new SVGApp() : new BaseApp();
-
-console.log('Installed', window.dotgen);
 
 
 },{"browsernizr":3,"browsernizr/test/canvas":30,"browsernizr/test/requestanimationframe":31,"browsernizr/test/svg":32,"glmatrix":1,"svapsvg":2}]},{},[33]);

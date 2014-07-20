@@ -24,7 +24,7 @@ module.exports = (grunt) ->
     watch:
       coffee:
         files: ['src/**/*.coffee']
-        tasks: ['browserify', 'concat', 'copy']
+        tasks: ['browserify', 'concat']
       options:
         livereload: true
 
@@ -40,4 +40,5 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-contrib-copy')
   grunt.loadNpmTasks('grunt-contrib-uglify')
   grunt.loadNpmTasks('grunt-browserify')
-  grunt.registerTask('default', ['connect', 'browserify', 'concat', 'copy', 'watch'])
+  grunt.registerTask('default', ['connect', 'browserify', 'concat', 'watch'])
+  grunt.registerTask('build', ['browserify', 'uglify', 'concat'])

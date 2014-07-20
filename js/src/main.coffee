@@ -5,16 +5,7 @@ Modernizr = require('browsernizr')
 console.log(Modernizr)
 
 {mat2d: mat2d, vec2: vec2} = require('glmatrix')
-
-try
-  console.log('loading snapsvg')
-  {Snap: Snap} = require('svapsvg')
-  console.log(Snap)
-  console.log('loaded snapsvg!')
-catch e
-  console.log e
-
-
+{Snap: Snap, mina: mina} = require('svapsvg')
 
 
 class Rectangle
@@ -35,6 +26,7 @@ class Rectangle
 class BaseApp
   show: =>
   hide: =>
+  update: =>
   draw: =>
 
 
@@ -44,127 +36,83 @@ class SVGApp
   constructor: ->
     document.getElementById('masthead').style.backgroundColor = 'white'
 
-    @paper = Snap(window.innerWidth, window.innerHeight)#.attr(style: 'position:absolute;left:0;top:0;')
+    @paper = Snap(window.innerWidth, window.innerHeight)
     @paper.node.style.position = 'fixed'
     @paper.node.style.left = 0
     @paper.node.style.top = 0
     @paper.node.style.zIndex = 0
-    @paper.node.style.display = 'none'
+#    @paper.node.style.display = 'none'
     @hidden = true
 
-    @circle = @paper.circle(150, 150, 300).attr(fill: 'red')
+    @bg = @paper.rect(0, 0, window.innerWidth, window.innerHeight).attr(fill: '#ffffff')
+
+    @navi = document.getElementById('navi')
+    mtx = Snap.matrix()
+    mtx.translate(Math.round((window.innerWidth - 950) / 2), Math.round(@navi.getBoundingClientRect().top))
+    @g = @paper.g().attr(transform: mtx.toTransformString())
+
+    @dots = {}
+
+
+  getInfo: =>
+    return [Math.round((window.innerWidth - 950) / 2), Math.round(@navi.getBoundingClientRect().top), window.innerWidth, window.innerHeight]
+
 
   show: =>
     @paper.node.style.display = 'block'
     @hidden = false
     @draw()
 
+
   hide: =>
     @paper.node.style.display = 'none'
     @hidden = true
+    e.remove() for e in @g.selectAll('*')
+    @bg.attr(fill: '#ffffff')
+    @dots = {}
 
-  draw: (params) =>
-    if not params
-      params = @params
-    else
-      @params = params
 
+  update: (info) =>
     if @hidden then return
-
     try
-      @circle.attr(fill: params.bgcolor)
-    catch e
-      console.log e
+      for {op: op, arg: arg} in info
+        switch op
+          when 'new'
+            p = arg.from or arg
+            d = @paper.circle(p.x, p.y, 0).attr(fill: '#' + ('00000' + p.color.toString(16)).substr(-6))
+            @g.add(d)
+            setTimeout(@animate, arg.delay * 1000, d, arg)
+            @dots[arg.id] = d
 
+          when 'move'
+            d = @dots[arg.from]
+            if d
+              delete @dots[arg.from]
+              setTimeout(@animate, arg.delay * 1000, d, arg)
+              @dots[arg.id] = d if not arg.destroy
+            else if not arg.destroy
+              d = @paper.circle(arg.x, arg.y, 0).attr(fill: '#' + ('00000' + arg.color.toString(16)).substr(-6))
+              @g.add(d)
+              setTimeout(@animate, arg.delay * 1000, d, arg)
+              @dots[arg.id] = d
 
+          when 'del'
+            d = @dots[arg]
+            d?.remove()
+            delete @dots[arg]
 
-class CanvasApp extends BaseApp
-
-  constructor: ->
-    document.getElementById('masthead').style.backgroundColor = 'white'
-
-    @canvas = document.createElement('canvas')
-    @canvas.width = window.innerWidth
-    @canvas.height = window.innerHeight
-    document.body.appendChild(@canvas)
-    @canvas.style.position = 'fixed'
-    @canvas.style.left = 0
-    @canvas.style.top = 0
-    @canvas.style.display = 'none';
-    @hidden = true
-
-    @navi = document.getElementById('navi')
-    @ctx = @canvas.getContext('2d')
-    @ctx.fillStyle = 'red'
-    @ctx.fillRect(0, 0, 100, 100)
-
-  show: =>
-    @canvas.style.display = 'block'
-    @hidden = false
-    @draw()
-
-  hide: =>
-    @canvas.style.display = 'none'
-    @hidden = true
-
-  draw: (params) =>
-    if not params
-      params = @params
-    else
-      @params = params
-
-    if @hidden then return
-
-    @ctx.clearRect(0, 0, @canvas.width, @canvas.height)
-    @ctx.fillStyle = params.bgcolor
-    @ctx.fillRect(0, 0, @canvas.width, @canvas.height)
-    bannerPos = [Math.round((window.innerWidth - 950) / 2), Math.round(@navi.getBoundingClientRect().top)]
-
-    w = window.innerWidth
-    h = window.innerHeight
-
-    try
-      mat = mat2d.create()
-      mat2d.rotate(mat, mat, params.rotation * Math.PI / 180)
-      mat2d.translate(mat, mat, [-(bannerPos[0] + params.origin.x), -(bannerPos[1] + params.origin.y)])
-      a = params.shear * Math.PI / 180
-      mat2d.multiply(mat, [1, Math.sin(a), 0, Math.cos(a), 0, 0], mat)
-
-      tl = vec2.transformMat2d(vec2.create(), [0, 0], mat)
-      tr = vec2.transformMat2d(vec2.create(), [w, 0], mat)
-      bl = vec2.transformMat2d(vec2.create(), [0, h], mat)
-      br = vec2.transformMat2d(vec2.create(), [w, h], mat)
-      x0 = Math.min(tl[0], tr[0], bl[0], br[0])
-      x1 = Math.max(tl[0], tr[0], bl[0], br[0])
-      y0 = Math.min(tl[1], tr[1], bl[1], br[1])
-      y1 = Math.max(tl[1], tr[1], bl[1], br[1])
-
-      radius = params.radius
-      interval = params.interval
-      hit = new Rectangle(0, 0, w, h)
-      hit.inflate(radius, radius)
-
-      mat2d.invert(mat, mat)
-      sy = Math.ceil((y0 - radius) / interval) * interval
-      ey = Math.ceil((y1 + radius) / interval) * interval
-      sx = Math.ceil((x0 - radius) / interval) * interval
-      ex = Math.ceil((x1 + radius) / interval) * interval
-      p = vec2.create()
-      @ctx.fillStyle = params.color
-      for y in [sy...ey] by interval
-        for x in [sx...ex] by interval
-          vec2.transformMat2d(p, [x, y], mat)
-          if hit.contains(p)
-            @ctx.beginPath()
-            @ctx.arc(p[0], p[1], radius, 0, Math.PI * 2, false)
-            @ctx.fill()
-
-
+          when 'bg'
+            @bg.attr(fill: '#' + ('00000' + arg.toString(16)).substr(-6))
     catch e
       console.log(e)
 
+  animate: (d, arg) =>
+    c = '#' + ('00000' + arg.color.toString(16)).substr(-6)
+    d.animate(cx: arg.x, cy: arg.y, r: arg.r, fill: c, 100, mina.linear, ->
+      if arg.destroy
+        d.remove()
+    )
 
 
-#window.dotgen = if Modernizr.canvas then new CanvasApp() else new BaseApp()
+
 window.dotgen = if Modernizr.svg then new SVGApp() else new BaseApp()
-console.log('Installed', window.dotgen)

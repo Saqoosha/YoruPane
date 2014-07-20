@@ -5,6 +5,7 @@ package jp.dotby.dotgen {
 
 import com.greensock.TweenLite;
 import com.greensock.easing.Expo;
+import com.greensock.easing.Linear;
 
 import flash.display.Shape;
 
@@ -30,10 +31,10 @@ public class Dot extends Shape {
     public function destroy(delay:Number = 0):void {
         if (parent) {
             var self:Dot = this;
-            TweenLite.to(this, 1, {
+            TweenLite.to(this, 0.1, {
                 scaleX: 0,
                 scaleY: 0,
-                ease: Expo.easeOut,
+                ease: Linear.easeNone,
                 delay: delay,
                 onComplete: function ():void {
                     self.parent.removeChild(self);
@@ -53,7 +54,7 @@ public class Dot extends Shape {
                 tint: info.color,
                 tintAmount: 1
             },
-            ease: Expo.easeOut,
+            ease: Linear.easeNone,
             delay: delay
         };
         if (destroyOnComplete) {
@@ -62,7 +63,7 @@ public class Dot extends Shape {
                 self.parent.removeChild(self);
             };
         }
-        TweenLite.to(this, 1, params);
+        TweenLite.to(this, 0.1, params);
     }
 
 

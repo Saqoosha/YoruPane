@@ -4,6 +4,7 @@
 package jp.dotby.dotgen {
 
 import flash.display.Sprite;
+import flash.external.ExternalInterface;
 import flash.utils.Dictionary;
 import flash.utils.getTimer;
 
@@ -26,6 +27,7 @@ public class Animator extends Sprite {
         var dot:Dot;
         var delay:Number;
         var maxDelay:Number = 0;
+        var toJS:Array = [];
 
         function calcDelay(info:DotInfo):Number {
             var dx:Number = info.x - 475;
@@ -34,24 +36,31 @@ public class Animator extends Sprite {
             if (d > maxDelay) {
                 maxDelay = d;
             }
-            return d;
+            return d + 0.011;
         }
 
         for each (info in _current) {
             dot = _dots[info];
             nearest = findNearest(next, info, 100);
-            delay = calcDelay(info);
             if (nearest) {
+                delay = calcDelay(nearest);
                 // transition to next pos
+                var arg:Object = nearest.toJS();
+                arg.from = info.id;
+                arg.delay = delay;
                 if (_dots[nearest]) {
                     dot.transitionTo(nearest, delay, true);
+                    arg.destroy = true;
                 } else {
                     dot.transitionTo(nearest, delay, false);
                     _dots[nearest] = dot;
+                    arg.destroy = false;
                 }
+                toJS.push({op: 'move', arg: arg});
             } else {
                 // no move, delete
-                dot.destroy(delay);
+                dot.destroy(calcDelay(info));
+                toJS.push({op: 'del', arg: info.id});
             }
             delete _dots[info];
         }
@@ -61,19 +70,31 @@ public class Animator extends Sprite {
                 continue;
             }
             nearest = findNearest(_current, info, 100);
+            delay = calcDelay(info);
+            arg = info.toJS();
+            arg.delay = delay;
             if (nearest) {
                 dot = new Dot(nearest);
+                arg.from = nearest.toJS();
+                toJS.push({op: 'new', arg: arg});
             } else {
                 dot = new Dot(info);
+                toJS.push({op: 'new', arg: arg});
             }
-            dot.transitionTo(info, calcDelay(info));
+            dot.transitionTo(info, delay);
             addChild(dot);
             _dots[info] = dot;
         }
 
         _current = next;
 
-//        trace(getTimer() - t);
+        trace('transition', getTimer() - t, 'ms');
+
+        ExternalInterface.call('function(data) {' +
+                '   window.dotgen.update(data);' +
+                '}', toJS);
+
+        trace('transition', getTimer() - t, 'ms');
         return maxDelay;
     }
 

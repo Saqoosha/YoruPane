@@ -29,6 +29,7 @@ public class Controller extends Sprite {
     public var dlip:Sprite;
     public var dlad:Sprite;
 
+    private var _opening:Boolean = false;
     private var _animator:Animator;
     private var _bgcolor:uint;
 
@@ -69,6 +70,7 @@ public class Controller extends Sprite {
     }
 
     public function open():void {
+        _opening = true;
         _animator.x = 0;
         _animator.scaleX = _animator.scaleY = 1.0;
         if (ExternalInterface.available) {
@@ -80,6 +82,7 @@ public class Controller extends Sprite {
 
 
     public function close():void {
+        _opening = false;
         _animator.x = 600;
         _animator.scaleX = _animator.scaleY = 0.4;
         if (ExternalInterface.available) {
@@ -91,7 +94,7 @@ public class Controller extends Sprite {
 
 
     private function _handleAddedToStage(event:Event):void {
-        graphics.beginFill(_bgcolor = Math.random() * 0xffffff);
+        graphics.beginFill(_bgcolor = 0xffffff);
         graphics.drawRect(0, 0, stage.stageWidth, stage.stageHeight);
         graphics.endFill();
 
@@ -99,17 +102,25 @@ public class Controller extends Sprite {
     }
 
 
+    private function range(low:Number, high:Number):Number {
+        return Math.random() * (high - low) + low;
+    }
+
+
     private function nextDots():void {
         var origin:Point = new Point(~~(stage.stageWidth / 2 + Math.random() * 200), ~~(stage.stageHeight / 2 + Math.random() * 200));
         var area:Rectangle = new Rectangle(0, 0, stage.stageWidth, stage.stageHeight);
-        var radius:int = 5 + Math.random() * 50;
-        var color:uint = Math.random() * 0xffffff;
-        var interval:int = radius * 2 + 5 + Math.random() * 50;
-        if (radius + interval < 30) {
-            var s:Number = 30 / (radius + interval) * 2;
-            radius *= s;
-            interval *= s;
+        if (ExternalInterface.available) {
+            var size:Array = ExternalInterface.call('function(){' +
+                    '   return window.dotgen.getInfo();' +
+                    '}');
+            if (size) {
+                area = area.union(new Rectangle(-size[0], -size[1], size[2], size[3]));
+            }
         }
+        var interval:int = Math.max(area.width, area.height) / range(10, 20);
+        var radius:int = Math.max(5, interval * 0.5 * range(0.1, 0.9));
+        var color:uint = Math.random() * 0xffffff;
         var rotation:int = Math.floor(Math.random() * 18) * 5;
         var shear:int = Math.floor(Math.random() * 4) * 15;
         var info:Vector.<DotInfo> = Generator.generate(origin, area, radius, color, interval, rotation, shear);
@@ -121,24 +132,11 @@ public class Controller extends Sprite {
         graphics.drawRect(0, 0, 950, 600);
         graphics.endFill();
 
-        if (ExternalInterface.available) {
-            color = colorTint(color, 0xffffff, 0.95);
-            _bgcolor = colorTint(_bgcolor, 0xffffff, 0.95);
-            setTimeout(function ():void {
-                ExternalInterface.call('function(params){' +
-                        'window.dotgen.draw(params);' +
-                        '}', {
-                    origin: {x: origin.x, y: origin.y},
-                    radius: radius,
-                    color: '#' + ('00000' + color.toString(16)).substr(-6),
-                    bgcolor: '#' + ('00000' + _bgcolor.toString(16)).substr(-6),
-                    interval: interval,
-                    rotation: rotation,
-                    shear: shear
-                });
-            }, (delay + 0.5) * 1000);
-        }
-        setTimeout(nextDots, (delay + 1) * 1000);
+        ExternalInterface.call('function(data){' +
+                '   window.dotgen.update(data)' +
+                '}', [{op: 'bg', arg: _bgcolor}]);
+
+        setTimeout(nextDots, (delay + (_opening ? 2 : 1)) * 1000);
     }
 
 
