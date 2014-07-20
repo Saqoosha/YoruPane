@@ -100,9 +100,11 @@ class SVGApp
           d = @dots[arg.from]
           if d
             delete @dots[arg.from]
+            if not arg.destroy
+              arg.destroy = @inner.contains([arg.x, arg.y])
             setTimeout(@animate, arg.delay * 1000, d, arg)
             @dots[arg.id] = d if not arg.destroy
-          else if not arg.destroy
+          else if not arg.destroy and not @inner.contains([arg.x, arg.y])
             d = @paper.circle(arg.x, arg.y, 0).attr(fill: '#' + ('00000' + arg.color.toString(16)).substr(-6))
             @g.add(d)
             setTimeout(@animate, arg.delay * 1000, d, arg)

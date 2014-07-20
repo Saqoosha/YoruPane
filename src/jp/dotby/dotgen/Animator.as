@@ -19,7 +19,7 @@ public class Animator extends Sprite {
     private var _dots:Dictionary = new Dictionary();
 
 
-    public function transition(next:Vector.<DotInfo>):Number {
+    public function transition(next:Vector.<DotInfo>, color2:uint):Number {
         var t:int = getTimer();
 
         var info:DotInfo;
@@ -46,6 +46,7 @@ public class Animator extends Sprite {
                 delay = calcDelay(nearest);
                 // transition to next pos
                 var arg:Object = nearest.toJS();
+                arg.color = color2;
                 arg.from = info.id;
                 arg.delay = delay;
                 if (_dots[nearest]) {
@@ -72,6 +73,7 @@ public class Animator extends Sprite {
             nearest = findNearest(_current, info, 100);
             delay = calcDelay(info);
             arg = info.toJS();
+            arg.color = color2;
             arg.delay = delay;
             if (nearest) {
                 dot = new Dot(nearest);

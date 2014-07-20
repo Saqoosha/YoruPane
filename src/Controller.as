@@ -124,7 +124,7 @@ public class Controller extends Sprite {
         var rotation:int = Math.floor(Math.random() * 18) * 5;
         var shear:int = Math.floor(Math.random() * 4) * 15;
         var info:Vector.<DotInfo> = Generator.generate(origin, area, radius, color, interval, rotation, shear);
-        var delay:Number = _animator.transition(info);
+        var delay:Number = _animator.transition(info, colorTint(color, 0xffffff, 0.75));
 
         _bgcolor = Math.random() * 0xffffff;
         graphics.clear();
@@ -134,9 +134,9 @@ public class Controller extends Sprite {
 
         ExternalInterface.call('function(data){' +
                 '   window.dotgen.update(data)' +
-                '}', [{op: 'bg', arg: _bgcolor}]);
+                '}', [{op: 'bg', arg: colorTint(_bgcolor, 0xffffff, 0.75)}]);
 
-        setTimeout(nextDots, (delay + (_opening ? 2 : 1)) * 1000);
+        setTimeout(nextDots, (delay + (_opening ? 1 : 1)) * 1000);
     }
 
 
