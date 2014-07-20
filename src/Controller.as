@@ -7,6 +7,8 @@ import com.greensock.plugins.ColorTransformPlugin;
 import com.greensock.plugins.TweenPlugin;
 
 import flash.display.BitmapData;
+import flash.display.Graphics;
+import flash.display.Shape;
 
 import flash.display.Sprite;
 import flash.events.Event;
@@ -15,6 +17,7 @@ import flash.external.ExternalInterface;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.net.FileReference;
+import flash.system.Capabilities;
 import flash.utils.ByteArray;
 import flash.utils.setTimeout;
 
@@ -31,8 +34,13 @@ public class Controller extends Sprite {
 
     private var _opening:Boolean = false;
     private var _animator:Animator;
-    private var _bgcolor:uint;
 
+    private var _interval:int;
+    private var _radius:int;
+    private var _color:uint;
+    private var _rotation:int;
+    private var _shear:int;
+    private var _bgcolor:uint;
 
     public function Controller() {
         Hoge.install();
@@ -46,7 +54,7 @@ public class Controller extends Sprite {
         _animator.scaleX = _animator.scaleY = 0.4;
         addChildAt(_animator, 0);
 
-        addEventListener(MouseEvent.CLICK, _handleClick);
+//        addEventListener(MouseEvent.CLICK, _handleClick);
         dlpc.mouseChildren = false;
         dlpc.addEventListener(MouseEvent.CLICK, _handleClick);
         dlip.mouseChildren = false;
@@ -58,13 +66,36 @@ public class Controller extends Sprite {
     private function _handleClick(event:MouseEvent):void {
 //        if (ExternalInterface.available) {
 //            ExternalInterface.call('function(){' +
-////                    'document.getElementsByClassName("aas")[0].webkitRequestFullscreen();' +
 //                    'document.body.webkitRequestFullscreen();' +
 //                    '}');
 //        }
 
-        var img:BitmapData = new BitmapData(950, 600, false, _bgcolor);
-        img.draw(_animator);
+        var size:Rectangle;
+        switch (event.target.name) {
+            case 'dlpc':
+                size = new Rectangle(0, 0, Capabilities.screenResolutionX, Capabilities.screenResolutionY);
+                break;
+            case 'dlip':
+                size = new Rectangle(0, 0, 744, 1392);
+                break;
+            case 'dlad':
+                size = new Rectangle(0, 0, 1440, 1280);
+                break;
+
+            default:
+                return;
+        }
+        var img:BitmapData = new BitmapData(size.width, size.height, false, _bgcolor);
+        var info:Vector.<DotInfo> = Generator.generate(new Point(size.width / 2, size.height / 2), size, _radius, _color, _interval, _rotation, _shear);
+        var s:Shape = new Shape();
+        var g:Graphics = s.graphics;
+        g.clear();
+        for each (var d:DotInfo in info) {
+            g.beginFill(d.color);
+            g.drawCircle(d.x, d.y, d.r);
+            g.endFill();
+        }
+        img.draw(s);
         var png:ByteArray = PNGEncoder.encode(img);
         new FileReference().save(png, 'dot.png');
     }
@@ -118,13 +149,13 @@ public class Controller extends Sprite {
                 area = area.union(new Rectangle(-size[0], -size[1], size[2], size[3]));
             }
         }
-        var interval:int = Math.max(area.width, area.height) / range(10, 20);
-        var radius:int = Math.max(5, interval * 0.5 * range(0.1, 0.9));
-        var color:uint = Math.random() * 0xffffff;
-        var rotation:int = Math.floor(Math.random() * 18) * 5;
-        var shear:int = Math.floor(Math.random() * 4) * 15;
-        var info:Vector.<DotInfo> = Generator.generate(origin, area, radius, color, interval, rotation, shear);
-        var delay:Number = _animator.transition(info, colorTint(color, 0xffffff, 0.75));
+        _interval = Math.max(area.width, area.height) / range(10, 20);
+        _radius = Math.max(5, _interval * 0.5 * range(0.1, 0.9));
+        _color = Math.random() * 0xffffff;
+        _rotation = Math.floor(Math.random() * 18) * 5;
+        _shear = Math.floor(Math.random() * 4) * 15;
+        var info:Vector.<DotInfo> = Generator.generate(origin, area, _radius, _color, _interval, _rotation, _shear);
+        var delay:Number = _animator.transition(info, colorTint(_color, 0xffffff, 0.75));
 
         _bgcolor = Math.random() * 0xffffff;
         graphics.clear();
