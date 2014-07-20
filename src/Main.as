@@ -114,7 +114,7 @@ public class Main extends MovieClip {
 
         var clazz:Class = getDefinitionByName('Controller') as Class;
         dotgen = new clazz();
-        addChild(dotgen);
+        addChildAt(dotgen, 0);
         // ロールオーバー（エキスパンド）用のリスナ登録
         dotgen.addEventListener(MouseEvent.ROLL_OVER, RollOverListener);
         // ロールアウト（エキスパンドクローズ）用のリスナ登録
