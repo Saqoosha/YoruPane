@@ -46,6 +46,7 @@ public class Controller extends Sprite {
     private var _rotation:int;
     private var _shear:int;
     private var _bgcolor:uint;
+    private var _bear:Boolean;
 
     public function Controller() {
         Hoge.install();
@@ -125,7 +126,7 @@ public class Controller extends Sprite {
                 return;
         }
         var img:BitmapData = new BitmapData(size.width, size.height, false, _bgcolor);
-        var info:Vector.<DotInfo> = Generator.generate(new Point(size.width / 2, size.height / 2), size, _radius, _color, _interval, _rotation, _shear);
+        var info:Vector.<DotInfo> = Generator.generate(new Point(size.width / 2, size.height / 2), size, _radius, _color, _interval, _rotation, _shear, _bear);
         var s:Shape = new Shape();
         var g:Graphics = s.graphics;
         g.clear();
@@ -197,7 +198,8 @@ public class Controller extends Sprite {
         _color = Math.random() * 0xffffff;
         _rotation = Math.floor(Math.random() * 18) * 5;
         _shear = Math.floor(Math.random() * 4) * 15;
-        var info:Vector.<DotInfo> = Generator.generate(origin, area, _radius, _color, _interval, _rotation, _shear);
+        _bear = Math.random() < 1 / 10;
+        var info:Vector.<DotInfo> = Generator.generate(origin, area, _radius, _color, _interval, _rotation, _shear, _bear);
         var delay:Number = _animator.transition(info, colorTint(_color, 0xffffff, 0.75));
 
         _bgcolor = Math.random() * 0xffffff;

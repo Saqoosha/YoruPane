@@ -14,7 +14,7 @@ public class Generator extends Sprite {
     private static var ID:int = 0;
 
 
-    public static function generate(origin:Point, area:Rectangle, radius:Number = 10, color:uint = 0xff0000, interval:Number = 50, rotation:Number = 0, shear:Number = 30):Vector.<DotInfo> {
+    public static function generate(origin:Point, area:Rectangle, radius:Number = 10, color:uint = 0xff0000, interval:Number = 50, rotation:Number = 0, shear:Number = 30, bear:Boolean = false):Vector.<DotInfo> {
         var info:Vector.<DotInfo> = new <DotInfo>[];
 
         var mtx:Matrix = new Matrix();
@@ -55,7 +55,7 @@ public class Generator extends Sprite {
             }
         }
 
-        if (Math.random() < 3 / 10) {
+        if (bear) {
             var d:DotInfo = info[~~(Math.random() * info.length)];
             var dx:Number = 9.8 / 15 * d.r;
             var dy:Number = 11.3 / 15 * d.r;
